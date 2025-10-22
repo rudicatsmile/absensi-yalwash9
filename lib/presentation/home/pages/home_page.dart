@@ -366,7 +366,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Hello, ${user?.name ?? 'User'}',
+                          'Hi, ${user?.name ?? 'User'}',
                           style: GoogleFonts.poppins(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
@@ -377,7 +377,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         ),
                         const SpaceHeight(2),
                         Text(
-                          position,
+                          position == '-' ? '' : position,
                           style: GoogleFonts.poppins(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
@@ -406,22 +406,22 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   children: [
                     Row(
                       children: [
-                        Icon(
-                          Icons.badge_rounded,
-                          size: 16,
-                          color: Colors.white.withOpacity(0.9),
-                        ),
-                        const SpaceWidth(8),
-                        Expanded(
-                          child: Text(
-                            'Role: $role',
-                            style: GoogleFonts.poppins(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white.withOpacity(0.9),
-                            ),
-                          ),
-                        ),
+                        // Icon(
+                        //   Icons.badge_rounded,
+                        //   size: 16,
+                        //   color: Colors.white.withOpacity(0.9),
+                        // ),
+                        // const SpaceWidth(8),
+                        // Expanded(
+                        //   child: Text(
+                        //     'Role: $role',
+                        //     style: GoogleFonts.poppins(
+                        //       fontSize: 11,
+                        //       fontWeight: FontWeight.w500,
+                        //       color: Colors.white.withOpacity(0.9),
+                        //     ),
+                        //   ),
+                        // ),
                       ],
                     ),
                     const SpaceHeight(6),
@@ -435,7 +435,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         const SpaceWidth(8),
                         Expanded(
                           child: Text(
-                            'Dept: $departmentName',
+                            'Lembaga: $departmentName',
                             style: GoogleFonts.poppins(
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
@@ -723,7 +723,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Working Hours',
+                    'Jam Kerja',
                     style: GoogleFonts.poppins(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
