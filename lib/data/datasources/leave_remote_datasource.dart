@@ -85,7 +85,7 @@ class LeaveRemoteDatasource {
         'Authorization': 'Bearer ${authData?.token}',
       },
     );
-log("GET LEAVES RESPONSE: ${response.body}");
+    log("GET LEAVES RESPONSE: ${response.body}");
     if (response.statusCode == 200) {
       return Right(LeaveResponseModel.fromJson(response.body));
     } else {

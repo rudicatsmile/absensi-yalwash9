@@ -36,7 +36,7 @@ class _MainPageState extends State<MainPage> {
   Widget _buildModernBottomNavBar() {
     return Container(
       margin: const EdgeInsets.only(
-        bottom: 20,
+        bottom: 4,
         left: 20,
         right: 20,
       ),
@@ -66,7 +66,7 @@ class _MainPageState extends State<MainPage> {
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(25),
+        borderRadius: BorderRadius.circular(15),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Container(

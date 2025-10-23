@@ -152,7 +152,8 @@ class _ProfilePageState extends State<ProfilePage>
                                   return _buildLoadingState();
                                 }
 
-                                if (!snapshot.hasData || snapshot.data == null) {
+                                if (!snapshot.hasData ||
+                                    snapshot.data == null) {
                                   return _buildEmptyState();
                                 }
 
@@ -165,8 +166,9 @@ class _ProfilePageState extends State<ProfilePage>
                                   phone: user?.phone ?? '-',
                                   imageUrl: user?.imageUrl,
                                   role: authData.role ?? user?.role ?? '-',
-                                  position:
-                                      authData.position ?? user?.position ?? '-',
+                                  position: authData.position ??
+                                      user?.position ??
+                                      '-',
                                   department: authData.department?.name ??
                                       user?.departemen?.name ??
                                       '-',

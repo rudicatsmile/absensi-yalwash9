@@ -17,6 +17,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/core.dart';
 import '../../../data/datasources/attendance_remote_datasource.dart';
 import '../../../data/models/response/company_locations_response_model.dart';
+import '../../history/pages/history_page.dart';
 import '../../profile/bloc/get_user/get_user_bloc.dart';
 import 'register_face_page.dart';
 
@@ -991,7 +992,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               ),
             ],
           ),
-          const SpaceHeight(24),
+          const SpaceHeight(15),
           GridView.count(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -1002,64 +1003,63 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             children: [
               _buildAttendanceButton(isCheckIn: true),
               _buildAttendanceButton(isCheckIn: false),
-              Row(
-                children: [
-                  _buildModernMenuButton(
-                    icon: Icons.access_time_filled_rounded,
-                    label: 'Izin',
-                    subtitle: 'Ajukan Izin',
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF4ECDC4), Color(0xFF44A08D)],
-                    ),
-                    onPressed: () async {
-                      await _checkBackendAndNavigate(() {
-                        context.push(const OvertimePage());
-                      });
-                    },
-                  ),
-                  const SpaceWidth(5),
-                  _buildModernMenuButton(
-                    icon: Icons.access_time_filled_rounded,
-                    label: 'Cuti',
-                    subtitle: 'Ajukan Cuti',
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF4ECDC4), Color(0xFF44A08D)],
-                    ),
-                    onPressed: () async {
-                      await _checkBackendAndNavigate(() {
-                        context.push(const OvertimePage());
-                      });
-                    },
-                  ),
-                  const SpaceWidth(5),
-                  _buildModernMenuButton(
-                    icon: Icons.access_time_filled_rounded,
-                    label: 'History',
-                    subtitle: 'Lihat History',
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF4ECDC4), Color(0xFF44A08D)],
-                    ),
-                    onPressed: () async {
-                      await _checkBackendAndNavigate(() {
-                        context.push(const OvertimePage());
-                      });
-                    },
-                  ),
-                  const SpaceWidth(5),
-                  _buildModernMenuButton(
-                    icon: Icons.access_time_filled_rounded,
-                    label: 'Overtime',
-                    subtitle: 'Ajukan Overtime',
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFFFF6B6B), Color(0xFFFF8E8E)],
-                    ),
-                    onPressed: () async {
-                      await _checkBackendAndNavigate(() {
-                        context.push(const LeavePage());
-                      });
-                    },
-                  ),
-                ],
+            ],
+          ),
+          const SpaceHeight(15),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildModernMenuButton(
+                icon: Icons.perm_identity,
+                label: 'Izin',
+                subtitle: '-------',
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF4ECDC4), Color(0xFF44A08D)],
+                ),
+                onPressed: () async {
+                  await _checkBackendAndNavigate(() {
+                    context.push(const LeavePage());
+                  });
+                },
+              ),
+              _buildModernMenuButton(
+                icon: Icons.time_to_leave,
+                label: 'Cuti',
+                subtitle: '-------',
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF4ECDC4), Color(0xFF44A08D)],
+                ),
+                onPressed: () async {
+                  await _checkBackendAndNavigate(() {
+                    context.push(const LeavePage());
+                  });
+                },
+              ),
+              _buildModernMenuButton(
+                icon: Icons.history_rounded,
+                label: 'History',
+                subtitle: '-------',
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF4ECDC4), Color(0xFF44A08D)],
+                ),
+                onPressed: () async {
+                  await _checkBackendAndNavigate(() {
+                    context.push(const HistoryPage());
+                  });
+                },
+              ),
+              _buildModernMenuButton(
+                icon: Icons.access_time_filled_rounded,
+                label: 'Lembur',
+                subtitle: '------',
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFFF6B6B), Color(0xFFFF8E8E)],
+                ),
+                onPressed: () async {
+                  await _checkBackendAndNavigate(() {
+                    context.push(const OvertimePage());
+                  });
+                },
               ),
             ],
           ),
@@ -2073,51 +2073,72 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     required LinearGradient gradient,
     required VoidCallback onPressed,
   }) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          gradient: gradient,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              // color: Colors.yellow,
-              blurRadius: 1,
-              offset: const Offset(0, 6),
-            ),
-          ],
+    return RepaintBoundary(
+      child: TweenAnimationBuilder<double>(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+        tween: Tween(begin: 0.96, end: 1.0),
+        builder: (context, scale, child) => Transform.scale(
+          scale: scale,
+          child: child,
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: Colors.white.withOpacity(0.3),
-                  width: 1,
+        child: Material(
+          color: Colors.transparent,
+          child: Ink(
+            decoration: BoxDecoration(
+              gradient: gradient,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x22000000),
+                  blurRadius: 6,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            child: InkWell(
+              onTap: onPressed,
+              borderRadius: BorderRadius.circular(12),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      icon,
+                      size: 20,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '------',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: false,
+                      style: GoogleFonts.poppins(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.white.withOpacity(0.92),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              child: Icon(
-                icon,
-                color: Colors.white,
-                size: 20,
-              ),
             ),
-            const SpaceHeight(4),
-            Text(
-              label,
-              style: GoogleFonts.poppins(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+          ),
         ),
       ),
     );

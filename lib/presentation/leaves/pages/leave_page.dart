@@ -21,7 +21,9 @@ class _LeavePageState extends State<LeavePage> {
   @override
   void initState() {
     super.initState();
-      context.read<GetAllLeavesBloc>().add(const GetAllLeavesEvent.getAllLeaves());
+    context
+        .read<GetAllLeavesBloc>()
+        .add(const GetAllLeavesEvent.getAllLeaves());
   }
 
   Future<void> _checkBackendAndNavigate(Function navigate) async {
@@ -128,7 +130,7 @@ class _LeavePageState extends State<LeavePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Leave Requests',
+                  'Permohonan Cuti',
                   style: GoogleFonts.poppins(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
@@ -136,7 +138,7 @@ class _LeavePageState extends State<LeavePage> {
                   ),
                 ),
                 Text(
-                  'Track and manage your leave history',
+                  'Pantau dan atur riwayat cuti Anda',
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     color: Colors.white.withOpacity(0.8),
@@ -157,7 +159,9 @@ class _LeavePageState extends State<LeavePage> {
     return RefreshIndicator(
       color: AppColors.primary,
       onRefresh: () async {
-        context.read<GetAllLeavesBloc>().add(const GetAllLeavesEvent.getAllLeaves());
+        context
+            .read<GetAllLeavesBloc>()
+            .add(const GetAllLeavesEvent.getAllLeaves());
         await Future<void>.delayed(const Duration(milliseconds: 600));
       },
       child: ListView.separated(
@@ -261,7 +265,7 @@ class _LeavePageState extends State<LeavePage> {
               },
               icon: const Icon(Icons.add_circle_outline_rounded),
               label: Text(
-                'Apply for Leave',
+                'Ajukan Cuti',
                 style: GoogleFonts.poppins(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -492,7 +496,7 @@ class _LeavePageState extends State<LeavePage> {
           ),
           const SpaceHeight(16),
           Text(
-            'No leave records yet',
+            'Belum ada catatan cuti',
             style: GoogleFonts.poppins(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -501,10 +505,10 @@ class _LeavePageState extends State<LeavePage> {
           ),
           const SpaceHeight(8),
           Text(
-            'Submit a leave request to see it here.',
+            'Kirim permohonan cuti untuk di tampilkan di sini',
             style: GoogleFonts.poppins(
               fontSize: 13,
-              color: AppColors.grey,
+              color: AppColors.black,
             ),
             textAlign: TextAlign.center,
           ),
@@ -524,7 +528,7 @@ class _LeavePageState extends State<LeavePage> {
               });
             },
             child: Text(
-              'Apply for Leave',
+              'Kirim Permohonan Cuti',
               style: GoogleFonts.poppins(
                 fontWeight: FontWeight.w600,
               ),
@@ -658,9 +662,7 @@ class _LeavePageState extends State<LeavePage> {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
-                isImage
-                    ? Icons.image_rounded
-                    : Icons.picture_as_pdf_rounded,
+                isImage ? Icons.image_rounded : Icons.picture_as_pdf_rounded,
                 color: Colors.white,
                 size: 22,
               ),

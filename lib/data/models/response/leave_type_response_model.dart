@@ -26,9 +26,8 @@ class LeaveTypeResponseModel {
 
   Map<String, dynamic> toMap() => {
         'message': message,
-        'data': data == null
-            ? []
-            : List<dynamic>.from(data!.map((x) => x.toMap())),
+        'data':
+            data == null ? [] : List<dynamic>.from(data!.map((x) => x.toMap())),
       };
 }
 
@@ -57,7 +56,14 @@ class LeaveTypeData {
   factory LeaveTypeData.fromMap(Map<String, dynamic> json) => LeaveTypeData(
         id: json['id'],
         name: json['name'],
-        quotaDays: json['quota_days'],
+        // quotaDays: json['quota_days'],
+        quotaDays: json['quota_days'] is int
+            ? json['quota_days'] as int
+            : json['quota_days'] is String
+                ? int.tryParse(json['quota_days'] as String)
+                : json['quota_days'] is num
+                    ? (json['quota_days'] as num).toInt()
+                    : null,
         isPaid: json['is_paid'],
         createdAt: json['created_at'] == null
             ? null

@@ -252,7 +252,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Please fill in all required fields',
+            'Silahkan isi semua field yang diperlukan',
             style: GoogleFonts.poppins(),
           ),
           backgroundColor: AppColors.red,
@@ -341,19 +341,19 @@ class _AddLeavePageState extends State<AddLeavePage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildSectionTitle('Leave Type'),
+                          _buildSectionTitle('Jenis Cuti'),
                           const SpaceHeight(12),
                           _buildLeaveTypeSelector(),
                           const SpaceHeight(24),
-                          _buildSectionTitle('Date Range'),
+                          _buildSectionTitle('Rentang Waktu'),
                           const SpaceHeight(12),
                           _buildDateFields(context),
                           const SpaceHeight(24),
-                          _buildSectionTitle('Reason'),
+                          _buildSectionTitle('Alasan'),
                           const SpaceHeight(12),
                           _buildReasonField(),
                           const SpaceHeight(24),
-                          _buildSectionTitle('Attachment (Optional)'),
+                          _buildSectionTitle('Lampiran (Opsional)'),
                           const SpaceHeight(12),
                           _buildAttachmentField(),
                           const SpaceHeight(32),
@@ -397,7 +397,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Apply for Leave',
+                  'Ajukan Cuti',
                   style: GoogleFonts.poppins(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
@@ -405,7 +405,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
                   ),
                 ),
                 Text(
-                  'Submit your leave request',
+                  'Kirim permintaan cuti Anda',
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     color: Colors.white.withOpacity(0.8),
@@ -433,11 +433,14 @@ class _AddLeavePageState extends State<AddLeavePage> {
   Widget _buildLeaveTypeSelector() {
     return BlocBuilder<LeaveTypeBloc, LeaveTypeState>(
       builder: (context, state) {
+        // print('1.leaveTypes state: $state');
+
         return state.when(
           initial: () => _buildLoadingLeaveTypes(),
           loading: () => _buildLoadingLeaveTypes(),
           success: (response) {
             final leaveTypes = response.data ?? [];
+            // print('2.leaveTypes state: $state');
             if (leaveTypes.isEmpty) {
               return _buildEmptyLeaveTypes();
             }
@@ -456,7 +459,8 @@ class _AddLeavePageState extends State<AddLeavePage> {
               decoration: BoxDecoration(
                 color: AppColors.light.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.light.withValues(alpha: 0.5)),
+                border:
+                    Border.all(color: AppColors.light.withValues(alpha: 0.5)),
               ),
               child: Column(
                 children: leaveTypes.map((type) {
@@ -497,7 +501,8 @@ class _AddLeavePageState extends State<AddLeavePage> {
                               ),
                               child: Icon(
                                 icon,
-                                color: isSelected ? Colors.white : AppColors.grey,
+                                color:
+                                    isSelected ? Colors.white : AppColors.grey,
                                 size: 20,
                               ),
                             ),
@@ -586,7 +591,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
       ),
       child: Center(
         child: Text(
-          'No leave types available',
+          'Jenis cuti tidak tersedia',
           style: GoogleFonts.poppins(color: AppColors.grey),
         ),
       ),
@@ -603,7 +608,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
       child: Column(
         children: [
           Text(
-            'Failed to load leave types',
+            'Gagal memuat jenis cuti',
             style: GoogleFonts.poppins(
               color: AppColors.red,
               fontWeight: FontWeight.w600,
@@ -630,7 +635,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
           child: _buildDateField(
             context,
             controller: startDateController,
-            label: 'Start Date',
+            label: 'Mulai',
             icon: Icons.event_rounded,
           ),
         ),
@@ -639,7 +644,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
           child: _buildDateField(
             context,
             controller: endDateController,
-            label: 'End Date',
+            label: 'Selesai',
             icon: Icons.event_available_rounded,
           ),
         ),
@@ -848,7 +853,7 @@ class _AddLeavePageState extends State<AddLeavePage> {
                     ),
                   )
                 : Text(
-                    'Submit Leave Request',
+                    'Kirim Permohonan Cuti',
                     style: GoogleFonts.poppins(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
