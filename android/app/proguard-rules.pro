@@ -13,6 +13,10 @@
 -keep class com.google.android.gms.** { *; }
 -keep class com.google.android.** { *; }
 -keep class com.google.android.material.** { *; }
+-keep class com.google.android.play.core.** { *; }
+-keep class com.google.android.play.core.splitcompat.** { *; }
+-keep class com.google.android.play.core.splitinstall.** { *; }
+-dontwarn com.google.android.play.core.**
 -keep class com.google.zxing.** { *; }
 -keep class org.tensorflow.lite.** { *; }
 

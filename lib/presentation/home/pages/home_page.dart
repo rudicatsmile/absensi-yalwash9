@@ -818,6 +818,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         ));
   }
 
+  // Build jadwal sholat yang mengambil API dari indonesia
   Widget _buildTimeCard() {
     return FutureBuilder(
       future: AuthLocalDatasource().getAuthData(),
