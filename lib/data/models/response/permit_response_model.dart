@@ -1,26 +1,26 @@
 import 'dart:convert';
 
-class LeaveResponseModel {
+class PermitResponseModel {
   final String? message;
-  final List<Leave>? data;
+  final List<Permit>? data;
 
-  LeaveResponseModel({
+  PermitResponseModel({
     this.message,
     this.data,
   });
 
-  factory LeaveResponseModel.fromJson(String str) =>
-      LeaveResponseModel.fromMap(json.decode(str));
+  factory PermitResponseModel.fromJson(String str) =>
+      PermitResponseModel.fromMap(json.decode(str));
 
   String toJson() => json.encode(toMap());
 
-  factory LeaveResponseModel.fromMap(Map<String, dynamic> json) =>
-      LeaveResponseModel(
+  factory PermitResponseModel.fromMap(Map<String, dynamic> json) =>
+      PermitResponseModel(
         message: json['message'],
         data: json['data'] == null
             ? []
-            : List<Leave>.from(
-                json['data']!.map((x) => Leave.fromMap(x)),
+            : List<Permit>.from(
+                json['data']!.map((x) => Permit.fromMap(x)),
               ),
       );
 
@@ -31,10 +31,10 @@ class LeaveResponseModel {
       };
 }
 
-class Leave {
+class Permit {
   final int? id;
   final int? employeeId;
-  final int? leaveTypeId;
+  final int? permitTypeId;
   final DateTime? startDate;
   final DateTime? endDate;
   final int? totalDays;
@@ -46,13 +46,13 @@ class Leave {
   final String? notes;
   final DateTime? createdAt;
   final DateTime? updatedAt;
-  final LeaveType? leaveType;
+  final PermitType? permitType;
   final Approver? approver;
 
-  Leave({
+  Permit({
     this.id,
     this.employeeId,
-    this.leaveTypeId,
+    this.permitTypeId,
     this.startDate,
     this.endDate,
     this.totalDays,
@@ -64,45 +64,28 @@ class Leave {
     this.notes,
     this.createdAt,
     this.updatedAt,
-    this.leaveType,
+    this.permitType,
     this.approver,
   });
 
-  factory Leave.fromJson(String str) => Leave.fromMap(json.decode(str));
+  factory Permit.fromJson(String str) => Permit.fromMap(json.decode(str));
 
   String toJson() => json.encode(toMap());
 
-  // Helper konversi aman untuk integer yang bisa datang sebagai int/string/num
-  int? _toInt(dynamic value) {
-    if (value == null) return null;
-    if (value is int) return value;
-    if (value is num) return value.toInt();
-    if (value is String) return int.tryParse(value);
-    return null;
-  }
-
-  factory Leave.fromMap(Map<String, dynamic> json) => Leave(
-        id: json['id'] == null ? null : int.tryParse(json['id'].toString()),
-        employeeId: json['employee_id'] == null
-            ? null
-            : int.tryParse(json['employee_id'].toString()),
-        leaveTypeId: json['leave_type_id'] == null
-            ? null
-            : int.tryParse(json['leave_type_id'].toString()),
+  factory Permit.fromMap(Map<String, dynamic> json) => Permit(
+        id: json['id'],
+        employeeId: json['employee_id'],
+        permitTypeId: json['permit_type_id'],
         startDate: json['start_date'] == null
             ? null
             : DateTime.parse(json['start_date']),
         endDate:
             json['end_date'] == null ? null : DateTime.parse(json['end_date']),
-        totalDays: json['total_days'] == null
-            ? null
-            : int.tryParse(json['total_days'].toString()),
+        totalDays: json['total_days'],
         reason: json['reason'],
         attachmentUrl: json['attachment_url'],
         status: json['status'],
-        approvedBy: json['approved_by'] == null
-            ? null
-            : int.tryParse(json['approved_by'].toString()),
+        approvedBy: json['approved_by'],
         approvedAt: json['approved_at'] == null
             ? null
             : DateTime.parse(json['approved_at']),
@@ -113,9 +96,9 @@ class Leave {
         updatedAt: json['updated_at'] == null
             ? null
             : DateTime.parse(json['updated_at']),
-        leaveType: json['leave_type'] == null
+        permitType: json['permit_type'] == null
             ? null
-            : LeaveType.fromMap(json['leave_type']),
+            : PermitType.fromMap(json['permit_type']),
         approver: json['approver'] == null
             ? null
             : Approver.fromMap(json['approver']),
@@ -124,7 +107,7 @@ class Leave {
   Map<String, dynamic> toMap() => {
         'id': id,
         'employee_id': employeeId,
-        'leave_type_id': leaveTypeId,
+        'permit_type_id': permitTypeId,
         'start_date': startDate?.toIso8601String(),
         'end_date': endDate?.toIso8601String(),
         'total_days': totalDays,
@@ -136,12 +119,12 @@ class Leave {
         'notes': notes,
         'created_at': createdAt?.toIso8601String(),
         'updated_at': updatedAt?.toIso8601String(),
-        'leave_type': leaveType?.toMap(),
+        'permit_type': permitType?.toMap(),
         'approver': approver?.toMap(),
       };
 }
 
-class LeaveType {
+class PermitType {
   final int? id;
   final String? name;
   final int? quotaDays;
@@ -149,7 +132,7 @@ class LeaveType {
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
-  LeaveType({
+  PermitType({
     this.id,
     this.name,
     this.quotaDays,
@@ -158,16 +141,14 @@ class LeaveType {
     this.updatedAt,
   });
 
-  factory LeaveType.fromJson(String str) => LeaveType.fromMap(json.decode(str));
+  factory PermitType.fromJson(String str) => PermitType.fromMap(json.decode(str));
 
   String toJson() => json.encode(toMap());
 
-  factory LeaveType.fromMap(Map<String, dynamic> json) => LeaveType(
-        id: json['id'] == null ? null : int.tryParse(json['id'].toString()),
+  factory PermitType.fromMap(Map<String, dynamic> json) => PermitType(
+        id: json['id'],
         name: json['name'],
-        quotaDays: json['quota_days'] == null
-            ? null
-            : int.tryParse(json['quota_days'].toString()),
+        quotaDays: json['quota_days'],
         isPaid: json['is_paid'],
         createdAt: json['created_at'] == null
             ? null
@@ -235,7 +216,7 @@ class Approver {
   String toJson() => json.encode(toMap());
 
   factory Approver.fromMap(Map<String, dynamic> json) => Approver(
-        id: json['id'] == null ? null : int.tryParse(json['id'].toString()),
+        id: json['id'],
         name: json['name'],
         email: json['email'],
         emailVerifiedAt: json['email_verified_at'],
@@ -253,15 +234,9 @@ class Approver {
         role: json['role'],
         position: json['position'],
         department: json['department'],
-        jabatanId: json['jabatan_id'] == null
-            ? null
-            : int.tryParse(json['jabatan_id'].toString()),
-        departemenId: json['departemen_id'] == null
-            ? null
-            : int.tryParse(json['departemen_id'].toString()),
-        shiftKerjaId: json['shift_kerja_id'] == null
-            ? null
-            : int.tryParse(json['shift_kerja_id'].toString()),
+        jabatanId: json['jabatan_id'],
+        departemenId: json['departemen_id'],
+        shiftKerjaId: json['shift_kerja_id'],
         faceEmbedding: json['face_embedding'],
         imageUrl: json['image_url'],
       );

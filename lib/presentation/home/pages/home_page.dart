@@ -18,6 +18,7 @@ import '../../../core/core.dart';
 import '../../../data/datasources/attendance_remote_datasource.dart';
 import '../../../data/models/response/company_locations_response_model.dart';
 import '../../history/pages/history_page.dart';
+import '../../permits/pages/permits_page.dart';
 import '../../profile/bloc/get_user/get_user_bloc.dart';
 import 'register_face_page.dart';
 
@@ -1018,7 +1019,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ),
                 onPressed: () async {
                   await _checkBackendAndNavigate(() {
-                    context.push(const LeavePage());
+                    context.push(const PermitsPage());
                   });
                 },
               ),

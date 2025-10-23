@@ -21,6 +21,10 @@ import 'package:flutter_absensi_app/presentation/leaves/bloc/create_leave/create
 import 'package:flutter_absensi_app/presentation/leaves/bloc/leave_type/leave_type_bloc.dart';
 import 'package:flutter_absensi_app/presentation/leaves/bloc/leave_balance/leave_balance_bloc.dart';
 import 'package:flutter_absensi_app/presentation/leaves/bloc/get_all_leaves/get_all_leaves_bloc.dart';
+import 'package:flutter_absensi_app/presentation/permits/bloc/create_permit/create_permit_bloc.dart';
+import 'package:flutter_absensi_app/presentation/permits/bloc/permit_type/permit_type_bloc.dart';
+import 'package:flutter_absensi_app/presentation/permits/bloc/permit_balance/permit_balance_bloc.dart';
+import 'package:flutter_absensi_app/presentation/permits/bloc/get_all_permits/get_all_permits_bloc.dart';
 import 'package:flutter_absensi_app/presentation/overtimes/blocs/get_overtimes/get_overtimes_bloc.dart';
 import 'package:flutter_absensi_app/presentation/overtimes/blocs/get_overtime_status/get_overtime_status_bloc.dart';
 import 'package:flutter_absensi_app/presentation/overtimes/blocs/start_overtime/start_overtime_bloc.dart';
@@ -31,10 +35,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'core/core.dart';
+import 'data/datasources/permits_data_source.dart';
+import 'data/datasources/permit_remote_datasource.dart';
 import 'data/datasources/user_remote_datasource.dart';
 import 'presentation/auth/bloc/login/login_bloc.dart';
 import 'presentation/auth/pages/splash_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'presentation/permits/bloc/permits_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,7 +53,6 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -124,6 +131,23 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => UpdateUserBloc(UserRemoteDatasource()),
+        ),
+        BlocProvider(
+          create: (context) => PermitsBloc(
+            PermitsDataSource(),
+          ),
+        ),
+        BlocProvider(
+          create: (context) => CreatePermitBloc(PermitRemoteDatasource()),
+        ),
+        BlocProvider(
+          create: (context) => PermitTypeBloc(PermitRemoteDatasource()),
+        ),
+        BlocProvider(
+          create: (context) => PermitBalanceBloc(PermitRemoteDatasource()),
+        ),
+        BlocProvider(
+          create: (context) => GetAllPermitsBloc(PermitRemoteDatasource()),
         ),
       ],
       child: MaterialApp(

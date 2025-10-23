@@ -93,6 +93,9 @@ class $AssetsImagesGen {
   AssetGenImage get imgMyLocation =>
       const AssetGenImage('assets/images/img_my_location.png');
 
+  /// File path: assets/images/logo.png
+  AssetGenImage get logo => const AssetGenImage('assets/images/logo.png');
+
   /// File path: assets/images/logo_code_with_bahri_bk.png
   AssetGenImage get logoCodeWithBahriBk =>
       const AssetGenImage('assets/images/logo_code_with_bahri_bk.png');
@@ -121,6 +124,7 @@ class $AssetsImagesGen {
         bgHome,
         failed,
         imgMyLocation,
+        logo,
         logoCodeWithBahriBk,
         logoGeo,
         logoGeoSquare,
