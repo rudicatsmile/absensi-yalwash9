@@ -6,7 +6,7 @@ import 'package:flutter_absensi_app/presentation/home/bloc/get_company/get_compa
 import 'package:flutter_absensi_app/presentation/home/bloc/is_checkedin/is_checkedin_bloc.dart';
 import 'package:flutter_absensi_app/presentation/home/pages/attandences/face_detector_checkin_page.dart';
 import 'package:flutter_absensi_app/presentation/home/pages/attandences/attendance_result_page.dart';
-import 'package:flutter_absensi_app/presentation/home/pages/attandences/scanner_page.dart';
+// import 'package:flutter_absensi_app/presentation/home/pages/attandences/scanner_page.dart';
 import 'package:flutter_absensi_app/presentation/leaves/pages/leave_page.dart';
 import 'package:flutter_absensi_app/presentation/overtimes/pages/overtime_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,6 +15,8 @@ import 'package:location/location.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/core.dart';
+import '../../../data/datasources/attendance_remote_datasource.dart';
+import '../../../data/models/response/company_locations_response_model.dart';
 import '../../profile/bloc/get_user/get_user_bloc.dart';
 import 'register_face_page.dart';
 
@@ -26,6 +28,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
+  List<CompanyLocation> _companyLocations = [];
+  CompanyLocation? _selectedCompanyLocation;
+  bool _isCompanyLocationsLoading = false;
+  String? _companyLocationsError;
   String? faceEmbedding;
   double? latitude;
   double? longitude;
@@ -51,6 +57,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     getCurrentPosition();
     _startAnimations();
+
+    // Run fetch dropdown after first frame to avoid setState during build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchCompanyLocations();
+    });
   }
 
   void _initializeAnimations() {
@@ -235,7 +246,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     ),
                   ),
 
-                  const SpaceHeight(32),
+                  const SpaceHeight(2),
+
+                  // Location Dropdown Section
+                  SlideTransition(
+                    position: _slideAnimation,
+                    child: _buildLocationDropdown(),
+                  ),
+
+                  const SpaceHeight(8),
 
                   // Menu Grid Section
                   SlideTransition(
@@ -622,6 +641,181 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
+  Future<void> _fetchCompanyLocations() async {
+    setState(() {
+      _isCompanyLocationsLoading = true;
+      _companyLocationsError = null;
+    });
+
+    // Get current user id from local auth
+    final auth = await AuthLocalDatasource().getAuthData();
+    final userId = auth?.user?.id?.toString() ?? '';
+
+    final result =
+        await AttendanceRemoteDatasource().getCompanyLocations(userId);
+
+    result.fold(
+      (err) {
+        setState(() {
+          _companyLocationsError = err;
+          _isCompanyLocationsLoading = false;
+        });
+      },
+      (resp) {
+        setState(() {
+          _companyLocations = resp.data ?? [];
+          _selectedCompanyLocation =
+              _companyLocations.isNotEmpty ? _companyLocations.first : null;
+          _isCompanyLocationsLoading = false;
+        });
+      },
+    );
+  }
+
+  Widget _buildLocationDropdown() {
+    if (_isCompanyLocationsLoading) {
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 24.0),
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_companyLocationsError != null) {
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 24.0),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.red[50],
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.red.withOpacity(0.3)),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.error_outline_rounded, color: Colors.red[700]),
+            const SpaceWidth(8),
+            Expanded(
+              child: Text(
+                _companyLocationsError!,
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.red[800],
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: _fetchCompanyLocations,
+              child: const Text('Retry'),
+            )
+          ],
+        ),
+      );
+    }
+
+    if (_companyLocations.isEmpty) {
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 24.0),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.blue[50],
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.blue.withOpacity(0.3)),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.info_outline_rounded, color: Colors.blue[700]),
+            const SpaceWidth(8),
+            Expanded(
+              child: Text(
+                'Belum di set',
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.blue[800],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Safely set current value only if present in the items
+    final currentValue = (_selectedCompanyLocation != null &&
+            _companyLocations.any(
+              (e) => e.id == _selectedCompanyLocation!.id,
+            ))
+        ? _selectedCompanyLocation!.id
+        : null;
+
+    return SlideTransition(
+        position: _slideAnimation,
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 24.0),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: DropdownButtonFormField<int>(
+            isExpanded: true,
+            value: currentValue,
+            dropdownColor: const Color(0xFFFFFFFF),
+            style: GoogleFonts.poppins(color: const Color(0xFF000000)),
+            iconEnabledColor: const Color(0xFF000000),
+            iconDisabledColor: const Color(0xFF000000),
+            decoration: InputDecoration(
+              labelText: 'Lokasi Absensi',
+              labelStyle: GoogleFonts.poppins(
+                fontSize: 12,
+                color: const Color(0xFF000000),
+                backgroundColor: const Color(0xFFFFFFFF),
+              ),
+              floatingLabelStyle: GoogleFonts.poppins(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: const Color(0xFF000000),
+                backgroundColor: const Color(0xFFFFFFFF),
+              ),
+              hintText: 'Pilih lokasi',
+              hintStyle: GoogleFonts.poppins(fontSize: 12),
+              filled: true,
+              fillColor: const Color(0xFFFFFFFF),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            items: _companyLocations
+                .map(
+                  (loc) => DropdownMenuItem<int>(
+                    value: loc.id,
+                    child: Text(
+                      loc.name ?? '-',
+                      style: GoogleFonts.poppins(
+                        fontSize: 13,
+                        color: const Color(0xFF000000),
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                )
+                .toList(),
+            onChanged: (val) {
+              if (val == null) {
+                setState(() => _selectedCompanyLocation = null);
+                return;
+              }
+              final match = _companyLocations.firstWhere(
+                (e) => e.id == val,
+                orElse: () => _companyLocations.first,
+              );
+              setState(() {
+                _selectedCompanyLocation = match;
+              });
+            },
+          ),
+        ));
+  }
+
   Widget _buildTimeCard() {
     return FutureBuilder(
       future: AuthLocalDatasource().getAuthData(),
@@ -695,16 +889,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   ),
                 ],
               ),
-              const SpaceHeight(20),
+              const SpaceHeight(12),
               Text(
                 DateTime.now().toFormattedTime(),
                 style: GoogleFonts.poppins(
                   fontWeight: FontWeight.w800,
-                  fontSize: 36,
+                  fontSize: 30,
                   color: const Color(0xFF1e3c72),
                 ),
               ),
-              const SpaceHeight(16),
+              const SpaceHeight(12),
               Container(
                 width: double.infinity,
                 height: 1,
@@ -718,28 +912,34 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   ),
                 ),
               ),
-              const SpaceHeight(16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              const SpaceHeight(10),
+              Column(
                 children: [
-                  Text(
-                    'Jam Kerja',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey[700],
-                    ),
-                  ),
-                  Text(
-                    '$startTime - $endTime',
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                      color: Colors.grey[800],
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Jam Kerja',
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                      Text(
+                        '$startTime - $endTime',
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          color: Colors.grey[800],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
+
+              //Dropdown lokasi absensi
             ],
           ),
         );
@@ -802,31 +1002,64 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             children: [
               _buildAttendanceButton(isCheckIn: true),
               _buildAttendanceButton(isCheckIn: false),
-              _buildModernMenuButton(
-                icon: Icons.access_time_filled_rounded,
-                label: 'Izin',
-                subtitle: 'Ajukan Izin',
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF4ECDC4), Color(0xFF44A08D)],
-                ),
-                onPressed: () async {
-                  await _checkBackendAndNavigate(() {
-                    context.push(const OvertimePage());
-                  });
-                },
-              ),
-              _buildModernMenuButton(
-                icon: Icons.event_busy_rounded,
-                label: 'Cuti',
-                subtitle: 'Ajukan Cuti',
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFFF6B6B), Color(0xFFFF8E8E)],
-                ),
-                onPressed: () async {
-                  await _checkBackendAndNavigate(() {
-                    context.push(const LeavePage());
-                  });
-                },
+              Row(
+                children: [
+                  _buildModernMenuButton(
+                    icon: Icons.access_time_filled_rounded,
+                    label: 'Izin',
+                    subtitle: 'Ajukan Izin',
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF4ECDC4), Color(0xFF44A08D)],
+                    ),
+                    onPressed: () async {
+                      await _checkBackendAndNavigate(() {
+                        context.push(const OvertimePage());
+                      });
+                    },
+                  ),
+                  const SpaceWidth(5),
+                  _buildModernMenuButton(
+                    icon: Icons.access_time_filled_rounded,
+                    label: 'Cuti',
+                    subtitle: 'Ajukan Cuti',
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF4ECDC4), Color(0xFF44A08D)],
+                    ),
+                    onPressed: () async {
+                      await _checkBackendAndNavigate(() {
+                        context.push(const OvertimePage());
+                      });
+                    },
+                  ),
+                  const SpaceWidth(5),
+                  _buildModernMenuButton(
+                    icon: Icons.access_time_filled_rounded,
+                    label: 'History',
+                    subtitle: 'Lihat History',
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF4ECDC4), Color(0xFF44A08D)],
+                    ),
+                    onPressed: () async {
+                      await _checkBackendAndNavigate(() {
+                        context.push(const OvertimePage());
+                      });
+                    },
+                  ),
+                  const SpaceWidth(5),
+                  _buildModernMenuButton(
+                    icon: Icons.event_busy_rounded,
+                    label: 'Jumat',
+                    subtitle: 'Ajukan Jumat',
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFFF6B6B), Color(0xFFFF8E8E)],
+                    ),
+                    onPressed: () async {
+                      await _checkBackendAndNavigate(() {
+                        context.push(const LeavePage());
+                      });
+                    },
+                  ),
+                ],
               ),
             ],
           ),
@@ -838,22 +1071,34 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Widget _buildAttendanceButton({required bool isCheckIn}) {
     return BlocBuilder<GetCompanyBloc, GetCompanyState>(
       builder: (context, state) {
-        final latitudePoint = state.maybeWhen(
+        final fallbackLat = state.maybeWhen(
           orElse: () => 0.0,
-          success: (data) => double.parse(data.latitude!),
+          success: (data) => double.tryParse(data.latitude ?? '0') ?? 0.0,
         );
-        final longitudePoint = state.maybeWhen(
+        final fallbackLng = state.maybeWhen(
           orElse: () => 0.0,
-          success: (data) => double.parse(data.longitude!),
+          success: (data) => double.tryParse(data.longitude ?? '0') ?? 0.0,
         );
-        final radiusPoint = state.maybeWhen(
+        final fallbackRadius = state.maybeWhen(
           orElse: () => 0.0,
-          success: (data) => double.parse(data.radiusKm!),
+          success: (data) => double.tryParse(data.radiusKm ?? '0') ?? 0.0,
         );
-        final attendanceType = state.maybeWhen(
+        final fallbackAttendanceType = state.maybeWhen(
           orElse: () => 'Location',
-          success: (data) => data.attendanceType!,
+          success: (data) => data.attendanceType ?? 'Location',
         );
+
+        final latitudePoint = _selectedCompanyLocation != null
+            ? double.tryParse(_selectedCompanyLocation!.latitude ?? '0') ?? 0.0
+            : fallbackLat;
+        final longitudePoint = _selectedCompanyLocation != null
+            ? double.tryParse(_selectedCompanyLocation!.longitude ?? '0') ?? 0.0
+            : fallbackLng;
+        final radiusPoint = _selectedCompanyLocation != null
+            ? double.tryParse(_selectedCompanyLocation!.radiusKm ?? '0') ?? 0.0
+            : fallbackRadius;
+        final attendanceType =
+            _selectedCompanyLocation?.attendanceType ?? fallbackAttendanceType;
 
         return BlocBuilder<IsCheckedinBloc, IsCheckedinState>(
           builder: (context, state) {
@@ -913,13 +1158,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               success: (data) => double.parse(data.radiusKm!),
             );
 
-            String buttonText = 'Face Attendance Today';
+            String buttonText = 'Absen dengan Wajah';
             if (!isCheckIn) {
-              buttonText = 'Check In with Face';
+              buttonText = 'Check In dengan Wajah';
             } else if (!isCheckout) {
-              buttonText = 'Check Out with Face';
+              buttonText = 'Check Out dengan Wajah';
             } else {
-              buttonText = 'Attendance Complete';
+              buttonText = 'Absensi Selesai';
             }
 
             return Container(
@@ -1032,8 +1277,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       if (isCheckIn) {
         if (isCheckedin) {
           _showModernDialog(
-            'Already Checked In',
-            'You have already checked in today.',
+            'Sudah Checked In',
+            'Anda sudah check-in hari ini.',
             Icons.check_circle_rounded,
             Colors.green,
           );
@@ -1042,8 +1287,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       } else {
         if (!isCheckedin) {
           _showModernDialog(
-            'Check In Required',
-            'Please check in first before checking out.',
+            'Check In diperlukan',
+            'Anda perlu check-in terlebih dahulu sebelum check-out.',
             Icons.info_rounded,
             Colors.blue,
           );
@@ -1051,8 +1296,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         }
         if (isCheckout) {
           _showModernDialog(
-            'Already Checked Out',
-            'You have already checked out today.',
+            'Sudah Checked Out',
+            'Anda sudah check-out hari ini.',
             Icons.check_circle_rounded,
             Colors.green,
           );
@@ -1090,7 +1335,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
       if (position.isMocked) {
         _showModernSnackBar(
-          'You are using fake location',
+          'Anda menggunakan aplikasi GPS palsu',
           Icons.error_outline,
           Colors.red,
         );
@@ -1099,7 +1344,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
       if (distanceKm > radiusPoint) {
         _showModernSnackBar(
-          'You are outside the attendance area',
+          'Anda berada di luar area absensi',
           Icons.location_off,
           Colors.orange,
         );
@@ -1124,7 +1369,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         });
       } else {
         _showModernSnackBar(
-          'You have completed attendance today',
+          'Anda sudah absen hari ini',
           Icons.check_circle,
           Colors.green,
         );
@@ -1338,7 +1583,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               ),
               const SpaceHeight(16),
               Text(
-                'Register Face Required',
+                'Pendaftaran wajah',
                 style: GoogleFonts.poppins(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -1348,7 +1593,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               ),
               const SpaceHeight(8),
               Text(
-                'You need to register your face first before using face attendance. Would you like to register now?',
+                'Anda perlu mendaftarkan wajah terlebih dahulu sebelum menggunakan absensi wajah. Apakah Anda ingin mendaftarkannya sekarang?',
                 style: GoogleFonts.poppins(
                   fontSize: 14,
                   color: Colors.grey[600],
@@ -1376,7 +1621,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           onTap: () => Navigator.pop(context),
                           child: Center(
                             child: Text(
-                              'Later',
+                              'Nanti',
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -1408,7 +1653,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           },
                           child: Center(
                             child: Text(
-                              'Register Now',
+                              'Daftar Sekarang',
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -1826,14 +2071,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     return GestureDetector(
       onTap: onPressed,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           gradient: gradient,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
-              color: gradient.colors.first.withOpacity(0.3),
-              blurRadius: 12,
+              // color: Colors.yellow,
+              blurRadius: 1,
               offset: const Offset(0, 6),
             ),
           ],
@@ -1854,29 +2099,19 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               child: Icon(
                 icon,
                 color: Colors.white,
-                size: 28,
+                size: 20,
               ),
             ),
-            const SpaceHeight(8),
+            const SpaceHeight(4),
             Text(
               label,
               style: GoogleFonts.poppins(
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
               ),
               textAlign: TextAlign.center,
             ),
-            // const SpaceHeight(2),
-            // Text(
-            //   subtitle,
-            //   style: GoogleFonts.poppins(
-            //     fontSize: 11,
-            //     fontWeight: FontWeight.w400,
-            //     color: Colors.white.withOpacity(0.8),
-            //   ),
-            //   textAlign: TextAlign.center,
-            // ),
           ],
         ),
       ),

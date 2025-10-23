@@ -7,6 +7,7 @@ import 'package:flutter_absensi_app/data/models/request/checkinout_request_model
 import 'package:flutter_absensi_app/data/models/response/attendance_response_model.dart';
 import 'package:flutter_absensi_app/data/models/response/checkinout_response_model.dart';
 import 'package:flutter_absensi_app/data/models/response/company_response_model.dart';
+import 'package:flutter_absensi_app/data/models/response/company_locations_response_model.dart';
 import 'package:http/http.dart' as http;
 
 class AttendanceRemoteDatasource {
@@ -135,6 +136,46 @@ class AttendanceRemoteDatasource {
         return Left(decoded['message']?.toString() ?? 'Failed to get attendances');
       } catch (_) {
         return const Left('Failed to get attendances');
+      }
+    }
+  }
+
+  // Dropdown: Company Locations
+  Future<Either<String, CompanyLocationsResponseModel>>
+      getCompanyLocations(String userId) async {
+    // Basic validation for user_id
+    final trimmed = userId.trim();
+    if (trimmed.isEmpty || int.tryParse(trimmed) == null) {
+      return const Left('Invalid user_id');
+    }
+
+    final authData = await AuthLocalDatasource().getAuthData();
+    final baseUrl =
+        Uri.parse('${Variables.baseUrl}/api/dropdown/company-locations');
+    final url = baseUrl.replace(
+      queryParameters: {
+        'user_id': trimmed,
+      },
+    );
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${authData?.token}',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return Right(CompanyLocationsResponseModel.fromJson(response.body));
+    } else {
+      try {
+        final decoded = jsonDecode(response.body) as Map<String, dynamic>;
+        return Left(decoded['message']?.toString() ??
+            'Failed to get company locations');
+      } catch (_) {
+        return const Left('Failed to get company locations');
       }
     }
   }
