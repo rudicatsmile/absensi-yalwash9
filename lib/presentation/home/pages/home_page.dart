@@ -1047,9 +1047,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   ),
                   const SpaceWidth(5),
                   _buildModernMenuButton(
-                    icon: Icons.event_busy_rounded,
-                    label: 'Jumat',
-                    subtitle: 'Ajukan Jumat',
+                    icon: Icons.access_time_filled_rounded,
+                    label: 'Overtime',
+                    subtitle: 'Ajukan Overtime',
                     gradient: const LinearGradient(
                       colors: [Color(0xFFFF6B6B), Color(0xFFFF8E8E)],
                     ),
@@ -1099,6 +1099,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             : fallbackRadius;
         final attendanceType =
             _selectedCompanyLocation?.attendanceType ?? fallbackAttendanceType;
+
+        print('latitudePoint: $latitudePoint');
+        print('longitudePoint: $longitudePoint');
+        print('radiusPoint: $radiusPoint');
+        print('attendanceType: $attendanceType');
 
         return BlocBuilder<IsCheckedinBloc, IsCheckedinState>(
           builder: (context, state) {
@@ -1653,7 +1658,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           },
                           child: Center(
                             child: Text(
-                              'Daftar Sekarang',
+                              'Daftar',
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
